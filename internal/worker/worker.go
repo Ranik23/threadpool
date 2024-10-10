@@ -1,7 +1,6 @@
 package worker
 
 import (
-	//"fmt"
 	"threadpool/internal/task"
 )
 

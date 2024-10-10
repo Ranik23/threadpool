@@ -2,7 +2,6 @@ package threadpool
 
 import (
 	"fmt"
-	"sync"
 	"threadpool/internal/task"
 	"time"
 )
@@ -11,14 +10,12 @@ var (
 	ErrQueueFull = fmt.Errorf("queue is full")
 )
 
-
 type ThreadPool struct {
 	queueSize	int
 	numWorkers  int
 	taskQueue 	chan task.Task
 	WorkerPool  chan chan task.Task
 	CloseHandle chan bool
-	mutex 		sync.Mutex
 }
 
 func NewThreadPool(numWorkers, queueSize int) *ThreadPool {
@@ -47,7 +44,7 @@ func (p *ThreadPool) SubmitTaskPeriodoc(task task.Task, period time.Duration) {
 
 	defer ticker.Stop()
 	
-	endTime := time.Now().Add(100 * time.Second) //  в теченеи 100 секунд будем добавлять 
+	endTime := time.Now().Add(100 * time.Second) //  в течение 100 секунд будем добавлять 
 
 	for {
 		select {
