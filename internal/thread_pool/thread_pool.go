@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"threadpool/internal/task"
+	"time"
 )
 
 var (
@@ -40,6 +41,40 @@ func (p *ThreadPool) SubmitTaskCommon(task task.Task) error {
     return nil
 }
 
+
+func (p *ThreadPool) SubmitTaskPeriodoc(task task.Task, period time.Duration) {
+	ticker := time.NewTicker(period)
+
+	defer ticker.Stop()
+	
+	endTime := time.Now().Add(100 * time.Second) //  в теченеи 100 секунд будем добавлять 
+
+	for {
+		select {
+		case <-ticker.C:
+			if len(p.taskQueue) == p.queueSize {
+				fmt.Println("Очередь заполнена, не удается добавить задачу")
+				return
+			}
+			p.taskQueue <- task
+			fmt.Println("Задача добавлена в очередь с периодом", period)
+		case <- time.After(time.Until(endTime)):
+			return
+		}
+	}
+}
+func (p *ThreadPool) SubmitTaskInterval(task task.Task, interval time.Duration) error {
+    if len(p.taskQueue) == p.queueSize {
+        fmt.Println("Очередь заполнена, не удается добавить задачу")
+        return ErrQueueFull
+    }
+
+	time.Sleep(interval)
+
+    p.taskQueue <- task
+    fmt.Println("Задача добавлена в очередь")
+    return nil
+}
 
 func (p *ThreadPool) Close() {
 	close(p.CloseHandle)

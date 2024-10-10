@@ -15,6 +15,11 @@ func NewWorker(workerPool chan chan task.Task, closeSIG chan bool) *Worker {
 	return &Worker{workerPool: workerPool, jobChannel: make(chan task.Task), closeSIG: closeSIG}
 }
 
+func (w *Worker) execute(task task.Task) {
+	task.Run()
+}
+
+
 func (w *Worker) Start() {
 	for {
 		w.workerPool <- w.jobChannel
@@ -25,8 +30,4 @@ func (w *Worker) Start() {
 			return
 		}
 	}
-}
-
-func (w *Worker) execute(task task.Task) {
-	task.Run()
 }
